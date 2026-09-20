@@ -1,0 +1,7 @@
+services:
+  card-management-web:
+    build: .
+    container_name: card-management-web
+    ports:
+      - "5010:5010"
+    restart: unless-stopped
