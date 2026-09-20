@@ -1,5 +1,10 @@
+```groovy
 pipeline {
     agent any
+
+    environment {
+        DOCKER_IMAGE = "haseenavleturi/card-management-web"
+    }
 
     stages {
 
@@ -11,14 +16,29 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t card-management-web:%BUILD_NUMBER% .'
+                bat "docker build -t %DOCKER_IMAGE%:%BUILD_NUMBER% ."
+                bat "docker tag %DOCKER_IMAGE%:%BUILD_NUMBER% %DOCKER_IMAGE%:latest"
             }
         }
 
-        stage('Docker Test') {
+        stage('Docker Login') {
             steps {
-                bat 'docker images card-management-web'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    bat 'docker login -u "%DOCKER_USERNAME%" -p "%DOCKER_PASSWORD%"'
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                bat "docker push %DOCKER_IMAGE%:%BUILD_NUMBER%"
+                bat "docker push %DOCKER_IMAGE%:latest"
             }
         }
     }
 }
+```
