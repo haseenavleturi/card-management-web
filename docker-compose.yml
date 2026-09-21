@@ -3,5 +3,5 @@ services:
     build: .
     container_name: card-management-web
     ports:
-      - "5010:5010"
+      - "5020:5010"
     restart: unless-stopped

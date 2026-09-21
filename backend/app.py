@@ -5,7 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR.parent / 'frontend'
-DB_PATH = BASE_DIR / 'cards.db'
+DB_PATH = Path('/app/data/cards.db')
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 app = Flask(__name__, static_folder=None)
 
@@ -16,7 +17,7 @@ def init_db():
     c=db(); c.executescript('''
     CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS folders(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,name TEXT NOT NULL);
-    CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,folder_id INTEGER,title TEXT NOT NULL,card_number TEXT NOT NULL,expiry TEXT,cvv TEXT,notes TEXT);
+    CREATE TABLE IF NOT EXISTS cards(id INTEGER PRIMARY KEY AUTOINCREMENT,user_id INTEGER NOT NULL,folder_id INTEGER,title TEXT NOT NULL,card_holder TEXT NOT NULL,card_number TEXT NOT NULL,expiry TEXT,cvv TEXT,notes TEXT);
     '''); c.commit(); c.close()
 
 @app.get('/')
@@ -36,7 +37,33 @@ def register():
         cur=c.execute('INSERT INTO users(name,email,password) VALUES(?,?,?)',(name,email,generate_password_hash(password))); c.commit(); uid=cur.lastrowid
     except sqlite3.IntegrityError: c.close(); return jsonify(error='Email is already registered.'),409
     c.close(); return jsonify(message='Registration successful.',user={'id':uid,'name':name,'email':email}),201
+@app.delete('/api/users/<int:uid>/folders/<int:fid>')
+def delete_folder(uid, fid):
+    c = db()
 
+    # Folder lo cards unnaya check
+    count = c.execute(
+        'SELECT COUNT(*) FROM cards WHERE folder_id=? AND user_id=?',
+        (fid, uid)
+    ).fetchone()[0]
+
+    if count > 0:
+        c.close()
+        return jsonify(error='Folder contains cards. Delete or move the cards first.'), 400
+
+    cur = c.execute(
+        'DELETE FROM folders WHERE id=? AND user_id=?',
+        (fid, uid)
+    )
+
+    c.commit()
+    deleted = cur.rowcount
+    c.close()
+
+    if deleted:
+        return jsonify(message='Folder deleted.')
+
+    return jsonify(error='Folder not found.'), 404
 @app.post('/api/login')
 def login():
     d=request.get_json() or {}; c=db(); u=c.execute('SELECT * FROM users WHERE email=?',(d.get('email','').strip().lower(),)).fetchone(); c.close()
@@ -57,9 +84,36 @@ def cards(uid):
     c=db(); rows=c.execute('''SELECT cards.*,COALESCE(folders.name,'Unfiled') folder_name FROM cards LEFT JOIN folders ON folders.id=cards.folder_id WHERE cards.user_id=? ORDER BY cards.id DESC''',(uid,)).fetchall(); c.close(); return jsonify([dict(x) for x in rows])
 @app.post('/api/users/<int:uid>/cards')
 def add_card(uid):
-    d=request.get_json() or {}; title=d.get('title','').strip(); number=d.get('card_number','').strip()
-    if not title or not number:return jsonify(error='Card title and card number are required.'),400
-    c=db(); cur=c.execute('INSERT INTO cards(user_id,folder_id,title,card_number,expiry,cvv,notes) VALUES(?,?,?,?,?,?,?)',(uid,d.get('folder_id') or None,title,number,d.get('expiry',''),d.get('cvv',''),d.get('notes',''))); c.commit(); cid=cur.lastrowid; c.close(); return jsonify(message='Card added.',id=cid),201
+    d = request.get_json() or {}
+    title = d.get('title', '').strip()
+    holder = d.get('card_holder', '').strip()
+    number = d.get('card_number', '').strip()
+
+    if not title or not holder or not number:
+        return jsonify(error='Card title, card holder and card number are required.'), 400
+
+    c = db()
+
+    cur = c.execute(
+        'INSERT INTO cards(user_id,folder_id,title,card_holder,card_number,expiry,cvv,notes) VALUES(?,?,?,?,?,?,?,?)',
+        (
+            uid,
+            d.get('folder_id') or None,
+            title,
+            holder,
+            number,
+            d.get('expiry', ''),
+            d.get('cvv', ''),
+            d.get('notes', '')
+        )
+    )
+
+    c.commit()
+    cid = cur.lastrowid
+    c.close()
+
+    return jsonify(message='Card added.', id=cid), 201
+    
 @app.delete('/api/users/<int:uid>/cards/<int:cid>')
 def delete_card(uid,cid):
     c=db(); cur=c.execute('DELETE FROM cards WHERE id=? AND user_id=?',(cid,uid)); c.commit(); n=cur.rowcount; c.close(); return (jsonify(message='Card deleted.') if n else (jsonify(error='Card not found.'),404))
@@ -67,4 +121,4 @@ def delete_card(uid,cid):
 def profile(uid):
     c=db(); u=c.execute('SELECT id,name,email FROM users WHERE id=?',(uid,)).fetchone(); c.close(); return (jsonify(dict(u)) if u else (jsonify(error='User not found.'),404))
 
-if __name__=='__main__': init_db(); app.run(host='0.0.0.0',port=5020,debug=True)
+if __name__=='__main__': init_db(); app.run(host='0.0.0.0',port=5030,debug=True)

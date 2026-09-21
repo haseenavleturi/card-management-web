@@ -4,5 +4,5 @@ COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend ./backend
 COPY frontend ./frontend
-EXPOSE 5010
+EXPOSE 5030
 CMD ["python","backend/app.py"]

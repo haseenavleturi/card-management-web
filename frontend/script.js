@@ -1,1 +1,41 @@
-let user=JSON.parse(localStorage.getItem('cardUser')||'null'),cards=[],folders=[],selected='all';const $=x=>document.getElementById(x);function msg(x){$('toast').textContent=x;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2200)}async function api(u,o={}){let r=await fetch(u,{headers:{'Content-Type':'application/json'},...o}),d=await r.json();if(!r.ok)throw Error(d.error||'Request failed');return d}function esc(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}function mask(x){x=String(x).replace(/\s/g,'');return x.length>4?'•••• •••• •••• '+x.slice(-4):x}async function load(){[folders,cards]=await Promise.all([api(`/api/users/${user.id}/folders`),api(`/api/users/${user.id}/cards`)]);render()}function render(){ $('cc').textContent=cards.length;$('fc').textContent=folders.length;$('welcome').textContent='Hi, '+user.name;$('profile').innerHTML=`<p><b>Name:</b> ${esc(user.name)}</p><p><b>Email:</b> ${esc(user.email)}</p>`;$('folders').innerHTML=folders.map(f=>`<button class="folder ${selected==f.id?'active':''}" data-folder="${f.id}">${esc(f.name)}</button>`).join('');$('cf').innerHTML='<option value="">Unfiled</option>'+folders.map(f=>`<option value="${f.id}">${esc(f.name)}</option>`).join('');let list=selected==='all'?cards:cards.filter(c=>String(c.folder_id)===String(selected));$('title').textContent=selected==='all'?'All Cards':(folders.find(f=>String(f.id)===String(selected))?.name||'Cards');$('cards').className='grid';$('cards').innerHTML=list.map(c=>`<article class="card"><button class="del" data-del="${c.id}">Delete</button><b>${esc(c.title)}</b><div class="num">${mask(c.card_number)}</div><div class="meta"><span>EXP ${esc(c.expiry||'--/--')}</span><span>${esc(c.folder_name)}</span></div></article>`).join('');$('empty').classList.toggle('hide',list.length>0)}function show(){if(user){$('auth').classList.add('hide');$('app').classList.remove('hide');load().catch(e=>msg(e.message))}}$('lt').onclick=()=>{$('lt').classList.add('active');$('rt').classList.remove('active');$('login').classList.remove('hide');$('register').classList.add('hide')};$('rt').onclick=()=>{$('rt').classList.add('active');$('lt').classList.remove('active');$('register').classList.remove('hide');$('login').classList.add('hide')};$('login').onsubmit=async e=>{e.preventDefault();try{user=(await api('/api/login',{method:'POST',body:JSON.stringify({email:$('le').value,password:$('lp').value})})).user;localStorage.setItem('cardUser',JSON.stringify(user));show()}catch(x){msg(x.message)}};$('register').onsubmit=async e=>{e.preventDefault();try{await api('/api/register',{method:'POST',body:JSON.stringify({name:$('rn').value,email:$('re').value,password:$('rp').value})});msg('Registered. Please login.');$('lt').click()}catch(x){msg(x.message)}};$('logout').onclick=()=>{localStorage.removeItem('cardUser');location.reload()};$('addcard').onclick=()=>carddlg.showModal();$('addfolder').onclick=()=>folderdlg.showModal();$('folderform').onsubmit=async e=>{e.preventDefault();try{await api(`/api/users/${user.id}/folders`,{method:'POST',body:JSON.stringify({name:$('fn').value})});folderdlg.close();e.target.reset();await load();msg('Folder created')}catch(x){msg(x.message)}};$('cardform').onsubmit=async e=>{e.preventDefault();try{await api(`/api/users/${user.id}/cards`,{method:'POST',body:JSON.stringify({title:$('ct').value,card_number:$('cn').value,expiry:$('ce').value,cvv:$('cv').value,folder_id:$('cf').value,notes:$('notes').value})});carddlg.close();e.target.reset();await load();msg('Card added')}catch(x){msg(x.message)}};document.onclick=async e=>{let f=e.target.closest('[data-folder]');if(f){selected=f.dataset.folder;render()}let d=e.target.closest('[data-del]');if(d&&confirm('Delete this card?')){await api(`/api/users/${user.id}/cards/${d.dataset.del}`,{method:'DELETE'});await load();msg('Card deleted')}};show();
+document.getElementById("loginForm").addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const loginInput = document.getElementById("loginInput").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (loginInput === "" || password === "") {
+        alert("Please enter username/email and password.");
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: loginInput,
+                password: password
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error || "Login failed");
+            return;
+        }
+
+        // Save logged-in user
+        localStorage.setItem("userId", data.user.id);
+
+        // Open Dashboard
+        window.location.href = "home.html";
+
+    } catch (error) {
+        console.error(error);
+        alert("Unable to connect to server.");
+    }
+});

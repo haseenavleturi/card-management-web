@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Card Management Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            💳 Card Manager
+        </div>
+
+        <nav>
+    <a href="#dashboard" class="active">🏠 Dashboard</a>
+    <a href="#my-cards">💳 My Cards</a>
+    <a href="#folders">📁 Folders</a>
+    <a href="#add-card">➕ Add Card</a>
+    <a href="#settings">⚙️ Settings</a>
+</nav>
+        <button class="logout-btn" onclick="logout()">
+            🚪 Logout
+        </button>
+
+    </aside>
+
+
+    <!-- Main Dashboard -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Manage all your cards in one place.</p>
+            </div>
+
+         <div class="profile">
+    <div class="avatar" id="userAvatar">H</div>
+    <div>
+        <strong>Welcome</strong>
+        <small id="userEmail">Loading...</small>
+    </div>
+</div>
+        </header>
+
+
+        <!-- Statistics -->
+      <section class="stats" id="dashboard">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    💳
+                </div>
+
+                <div>
+                    <span>Total Cards</span>
+                    <h2 id="totalCards">0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📁
+                </div>
+
+                <div>
+                    <span>Folders</span>
+                    <h2 id="totalFolders">0</h2>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🔒
+                </div>
+
+                <div>
+                    <span>Secure Cards</span>
+                    <h2 id="secureCards">0</h2>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- My Cards -->
+        <section class="cards-section" id ="my-cards">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>My Cards</h2>
+                    <p>Your saved cards</p>
+                </div>
+
+     <button class="add-card-btn" onclick="document.getElementById('add-card').scrollIntoView({behavior:'smooth'})">
+    + Add Card
+</button>
+            </div>
+
+<div class="folder-section" id="folders">
+
+    <h2>My Folders</h2>
+
+    <div class="folder-create">
+        <input
+            type="text"
+            id="folderName"
+            placeholder="Enter folder name"
+        >
+
+        <button onclick="createFolder()">
+            + Create Folder
+        </button>
+    </div>
+
+    <div id="foldersContainer">
+        <p>Loading folders...</p>
+    </div>
+
+</div>
+<div class="add-card-section" id="add-card">
+
+    <h2>Add New Card</h2>
+
+    <input
+        type="text"
+        id="cardTitle"
+        placeholder="Card name"
+    >
+<input type="text" id="cardHolder" placeholder="Card holder name">
+    <input
+        type="text"
+        id="cardNumber"
+        placeholder="Card number"
+    >
+
+    <input
+        type="text"
+        id="cardExpiry"
+        placeholder="Expiry (MM/YY)"
+    >
+
+    <input
+        type="password"
+        id="cardCvv"
+        placeholder="CVV"
+    >
+
+    <select id="cardFolder">
+        <option value="">Select Folder</option>
+    </select>
+
+    <button onclick="saveCard()">
+        Save Card
+    </button>
+
+</div>
+            <div id="cardsContainer" class="cards-grid">
+
+                <div class="loading">
+                    Loading cards...
+                </div>
+
+            </div>
+
+        </section>
+<!-- Settings -->
+
+<section class="settings-section" id="settings">
+
+    <h2>⚙️ Settings</h2>
+
+    <p>Manage your account settings.</p>
+
+    <div class="settings-box">
+    <label>Account</label>
+    <p id="settingsUserName">Loading...</p>
+    <button onclick="logout()">🚪 Logout</button>
+</div>
+</section>
+    </main>
+
+</div>
+
+
+<script src="home.js"></script>
+
+</body>
+</html>

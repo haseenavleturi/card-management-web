@@ -1,5 +1,88 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Card Management Web</title><link rel="stylesheet" href="style.css"></head><body>
-<div id="toast"></div><section id="auth"><div class="box"><h1>Card<span>Vault</span></h1><p>Manage your cards and folders.</p><div class="tabs"><button id="lt" class="active">Login</button><button id="rt">Register</button></div><form id="login"><input id="le" type="email" placeholder="Email" required><input id="lp" type="password" placeholder="Password" required><button>Login</button></form><form id="register" class="hide"><input id="rn" placeholder="Full name" required><input id="re" type="email" placeholder="Email" required><input id="rp" type="password" minlength="6" placeholder="Password" required><button>Create account</button></form></div></section>
-<section id="app" class="hide"><header><b>Card<span>Vault</span></b><div><span id="welcome"></span> <button id="logout" class="outline">Logout</button></div></header><main><div class="hero"><div><h2>My Card Manager</h2><p>Add cards, create folders and organize information.</p></div><div><button id="addcard">+ Add Card</button><button id="addfolder" class="outline">+ Add Folder</button></div></div><div class="stats"><div><strong id="cc">0</strong><small>Total Cards</small></div><div><strong id="fc">0</strong><small>Folders</small></div></div><div class="layout"><aside><h3>Folders</h3><button class="folder active" data-folder="all">All Cards</button><div id="folders"></div></aside><section><h2 id="title">All Cards</h2><div id="cards"></div><div id="empty" class="empty">No cards yet. Add your first card.</div></section></div><div class="profile"><h3>Profile</h3><div id="profile"></div></div></main></section>
-<dialog id="carddlg"><form id="cardform"><h2>Add Card</h2><input id="ct" placeholder="Card title" required><input id="cn" placeholder="Card number" required><div class="two"><input id="ce" placeholder="MM/YY"><input id="cv" placeholder="CVV"></div><select id="cf"><option value="">Unfiled</option></select><textarea id="notes" placeholder="Notes"></textarea><button>Save Card</button><button type="button" class="outline" onclick="carddlg.close()">Cancel</button></form></dialog>
-<dialog id="folderdlg"><form id="folderform"><h2>Add Folder</h2><input id="fn" placeholder="Folder name" required><button>Create Folder</button><button type="button" class="outline" onclick="folderdlg.close()">Cancel</button></form></dialog><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Card Management System - Sign In</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-box">
+
+            <div class="login-icon">
+                💳
+            </div>
+
+            <h1>Card Management System</h1>
+
+            <p class="login-subtitle">
+                Manage your cards securely
+            </p>
+
+            <h2>Sign In</h2>
+
+            <form id="loginForm">
+
+                <div class="input-group">
+                    <label for="loginInput">
+                        Username or Email
+                    </label>
+
+                    <input
+                        type="text"
+                        id="loginInput"
+                        placeholder="Enter username or email"
+                        required
+                    >
+                </div>
+
+
+                <div class="input-group">
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter password"
+                        required
+                    >
+                </div>
+
+
+                <button type="submit" class="login-btn">
+                    Sign In
+                </button>
+
+            </form>
+
+
+            <div class="links">
+
+                <a href="register.html">
+                    Register
+                </a>
+
+                <a href="forgot-password.html">
+                    Forgot Password?
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
